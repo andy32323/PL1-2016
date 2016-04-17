@@ -45,7 +45,7 @@ To give meaning to identifiers, we use _environments_. Environments are mappings
 type Env = Map[Symbol,Int]
 
 /** 
-An evaluator (or interpreter) for this language takes an expression and an environment as parameter and produces a value - in this case "Int". The interpreter illustrates how pattern matching over case classes works. 
+An evaluator (or interpreter) for this language takes an expression and an environment as parameter and produces a value - in this case "Int". This interpreter uses pattern matching over case classes.
 */
 
  def eval(e: Exp, env: Env) : Int = e match {
