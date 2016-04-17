@@ -162,9 +162,12 @@ However, what about the evaluator? If we instantiate T = Int, then how can we ac
   
   val evalVisitor = Visitor[Env=>Int]( 
      env => _ ,
-     (a, b) => env => a(env) + b(env),
-     (a, b) => env => a(env) * b(env),
-     x => env => env(x))
+     (a, b) => env =>
+       a(env) + b(env),
+     (a, b) => env =>
+       a(env) * b(env),
+     x => env =>
+       env(x))
 }
 
  
