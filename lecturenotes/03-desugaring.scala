@@ -2,7 +2,7 @@
 Desugaring
 ==========
 
-In the exercises you have already seen the basic structure of an interpreter by means of an interpreter for a language of arithmetic Exps: 
+You have already seen the basic structure of an interpreter by means of an interpreter for a language of arithmetic Exps:
 */
 
 object AE {
@@ -100,7 +100,7 @@ With this desugaring in place, we do not need an interpreter for SMAE anymore; r
 val res = MAE.eval(desugarSMAE2MAE(SMAE.ex))
 
 /** 
-If we had written other algorithms on MAE, or had proven properties of MAE, they'd be applicable to SMAE, too. Hence desugaring is a way of reusing code, proofs, ... . It is important, though, that the desugared language feature is gone after desugaring. For instance, a pretty printer would print the desugared code. A debugger would use the desugared code. This can be an important downside to desugaring. There are ways to avoid or mitigate these shortcomings, but they require Addal work.
+If we had written other algorithms on MAE, or had proven properties of MAE, they'd be applicable to SMAE, too. Hence desugaring is a way of reusing code, proofs, ... . It is important, though, that the desugared language feature is gone after desugaring. For instance, a pretty printer would print the desugared code. A debugger would use the desugared code. This can be an important downside to desugaring. There are ways to avoid or mitigate these shortcomings, but they require additional work.
 
 There is a second way of realizing desugaring which does not require the definition of a copy of the AST classes. We can desugar earlier, namely during the construction of the AST: */
 

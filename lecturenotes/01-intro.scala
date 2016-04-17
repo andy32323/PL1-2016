@@ -38,7 +38,7 @@ How will we get there?
 
 We will typically explain language features in two steps. First, we'll give an informal introduction and discuss some examples to get some experience with it. Then we will distill the core of the feature into an executable interpreter. Later, when we have more experience in formalizing language design into interpreters, we will also use formal mathematical notation.
 
-We will not just present the design of these features as if had disappeared out of the blue sky. Rather, we will discuss the process and trade-offs (and potential mistakes and pitfalls) that led to these designs. We will also discuss how these features appear in various available programming languages.
+We will not just present the design of these features as if it had appeared out of the blue sky. Rather, we will discuss the process and trade-offs (and potential mistakes and pitfalls) that led to these designs. We will also discuss how these features appear in various available programming languages.
 
 We will mainly use the programming language Scala to write interpreters. Scala is sufficiently powerful to allow concise and elegant interpreters; on the other hand, it is sufficiently mature and popular for industrial usage. It also has variants of many of the features we will discuss. The book by Krishnamurthi, on which we loosely base the first part of the course, uses a different language, Racket. You are also welcome to use Racket instead of (or in addition to) Scala. Racket embodies an important tradition of PL design that is worth knowing, hence we encourage you, independently of this course, to study it!
 
