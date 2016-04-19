@@ -99,12 +99,13 @@ Compositional specifications are particularly nice because they enable "equation
   case class Num(n: Int) extends Exp
   case class Add(lhs: Exp, rhs: Exp) extends Exp
  
-  def foldExp[T](v: Visitor[T], e: Exp) : T = {
+  def foldExp[T](v: Visitor[T], e: Exp): T = {
     e match {
       case Num(n) => v.num(n)
-      case Add(l,r) => v.add(foldExp(v,l), foldExp(v,r))
+      case Add(l, r) => v.add(foldExp(v, l), foldExp(v, r))
     }
   }
+
 /** 
 Here is our evaluator from above rephrased using the visitor infrastructure. 
 */
