@@ -1,4 +1,8 @@
 /**
+ * Notes from exercise session (with implementation of freeVars) + master solution to the task.
+ */
+
+/**
   * Homework 01
   * ============
   *
