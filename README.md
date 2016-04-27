@@ -12,6 +12,7 @@ Schedule
  * April 20. Exercises *CANCELED due to illness*
  * April 21. Exercise: [Shape language](exercises/01-forms.scala)
  * April 25. Lecture: [First-Order Functions](lecturenotes/06-f1wae.scala)
+ * April 27. Exercise: Binding and free variables (notes pending)
  
  
 
@@ -19,3 +20,4 @@ Homework
 --------
 
  * [First homework](exercises/01-hw.scala)
+ * [Second homework](exercises/02-hw.scala)
