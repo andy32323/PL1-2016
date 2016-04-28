@@ -23,7 +23,7 @@
 //      - your names
 //      - your student ids ("Matrikelnummer")
 // 1. add booleans (incl. a conditional statement) to FAE
-// 2. change the FAE interpreter to only close over free variables
+// 2. change the *environment-based* FAE interpreter to only close over free variables
 //
 // About task 2: The FAE interpreter from the lecture always puts
 // the whole environment in the closure, but it would be enough
