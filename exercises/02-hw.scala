@@ -2,8 +2,6 @@
 // "Programming Languages I" at Tübingen University.
 // Summer term 2015/2016.
 
-// (notes pending)
-
 // HOMEWORK ASSIGNMENT
 // ===================
 //
