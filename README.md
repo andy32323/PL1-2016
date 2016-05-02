@@ -13,6 +13,8 @@ Schedule
  * April 21. Exercise: [Shape language](exercises/01-forms.scala)
  * April 25. Lecture: [First-Order Functions](lecturenotes/06-f1wae.scala)
  * April 27. Exercise: [Binding and Free Variables](exercises/01HwSolution.scala). Includes solution to first homework.
+ * April 28. Lecture: [Higher-Order Functions](lecturenotes/07-fae.scala) 
+ * May 2. Lecture: [Lazy Evaluation](lecturenotes/08-lcfae.scala)  
  
  
 
