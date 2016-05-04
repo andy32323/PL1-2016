@@ -1,4 +1,27 @@
-// Here is some code from 06-eval.scala:
+// HOMEWORK ASSIGNMENT
+// ===================
+//
+// SUBMISSION INSTRUCTIONS
+// - Submit your solution to this exercise until Tuesday, 10.5., 23:59h
+//   via email to paolo.giarrusso@uni-tuebingen.de.
+// - Use the same email for questions.
+//
+// - Work in groups of 1 or 2 students.
+// - Send the email CC to the other student in your team!
+// - Put "pl1-hw03" in subject, please
+
+// TASKS
+// =====
+// 1. Add a case class LazyFun and extend the interpreter so that
+//    LazyFun creates function with call-by-need evaluation order.
+//
+// About task 1: This is similar to how Scala has functions with
+// and without the => annotation for call-by-name.
+//
+// 2. Implement in your object language a function if that wraps
+//    conditionals and uses LazyFun.
+
+// Here is some code from lecture notes for environment-based interpretation.
 
 sealed abstract class Exp
 case class Num(n: Int) extends Exp
@@ -40,27 +63,3 @@ def evalWithEnv(e: Exp, env: Env) : Value = e match {
 assert( evalWithEnv(test, Map.empty) == NumV(12))
 assert( evalWithEnv(test2,Map.empty) == NumV(8))
 
-// HOMEWORK ASSIGNMENT
-// ===================
-//
-// Email homework as Scala source file to:
-//
-// rendel@informatik.uni-tuebingen.de
-//
-// Work in groups of 1 or 2 students.
-// Send the email CC to the other student in your team.
-// Hand in before the morning of Monday, December 8.
-//
-//
-// Put "pl1-hw04" in subject, please
-//
-// 0. write in the email:
-// - your names
-// - your student ids ("Matrikelnummer")
-// 1. Add a case class LazyFun and extend the interpreter so that
-//    LazyFun creates function with call-by-need evaluation order.
-//
-// About task 1: This is similar to how Scala has functions with
-// and without the => annotation for call-by-name.
-//
-// Send question by email to rendel@informatik.uni-tuebingen.de
