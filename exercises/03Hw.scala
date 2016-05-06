@@ -68,6 +68,17 @@ object Hw03 {
   val test = App( Fun('x,Add('x,5)), 7)
   val test2 = wth('x, 5, App(Fun('f, App('f,3)), Fun('y,Add('x,'y))))
 
+  def freeVars(e: Exp): Set[Symbol] = e match {
+    case Id(x)          => Set(x)
+    case Add(l, r)      => freeVars(l) ++ freeVars(r)
+    case Fun(x, body)   => freeVars(body) - x
+    case App(f, a)      => freeVars(f) ++ freeVars(a)
+    case Num(n)         => Set.empty
+    case Bool(b)        => Set.empty
+    case If(test, t, e) => freeVars(test) ++ freeVars(t) ++ freeVars(e)
+    case Eq(l, r)       => freeVars(l) ++ freeVars(r)
+  }
+
   sealed abstract class Value
   type Env = Map[Symbol, Value]
   case class NumV(n: Int) extends Value
@@ -75,7 +86,8 @@ object Hw03 {
   case class ClosureV(f: Fun, env: Env) extends Value
 
   def evalWithEnv(e: Exp, env: Env) : Value = e match {
-    case Num(n: Int) => NumV(n)
+    case Num(n) => NumV(n)
+    case Bool(b) => BoolV(b)
     case Id(x) => env(x)
     case Add(l,r) => {
       (evalWithEnv(l,env), evalWithEnv(r,env)) match {
