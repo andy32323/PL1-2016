@@ -24,3 +24,4 @@ Homework
 
  * [First homework](exercises/01Hw.scala)
  * [Second homework](exercises/02Hw.scala)
+ * [Third homework](exercises/03Hw.scala)
