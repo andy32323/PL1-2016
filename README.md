@@ -25,3 +25,11 @@ Homework
  * [First homework](exercises/01Hw.scala)
  * [Second homework](exercises/02Hw.scala)
  * [Third homework](exercises/03Hw.scala)
+
+Forum
+-----
+
+Our lecture has now a forum on https://forum-ps.informatik.uni-tuebingen.de/c/pl1.
+
+Please register to the forum to ask and discuss questions on lectures/homeworks,
+just don't post solutions to the homeworks!
