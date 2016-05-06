@@ -15,6 +15,7 @@ Schedule
  * April 27. Exercise: [Binding and Free Variables](exercises/01HwSolution.scala). Includes solution to first homework.
  * April 28. Lecture: [Higher-Order Functions](lecturenotes/07-fae.scala) 
  * May 2. Lecture: [Lazy Evaluation](lecturenotes/08-lcfae.scala)  
+ * May 4. Exercise: [Booleans, Laziness in Scala](exercises/02Ex.scala). Includes solution to second homework.
  
  
 
