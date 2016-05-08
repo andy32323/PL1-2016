@@ -10,14 +10,26 @@ Schedule
  * April 13. Lecture: [Desugaring](lecturenotes/03-desugaring.scala), [Arithmetic Expressions, Visitors](lecturenotes/04-ae.scala)
  * April 18. Lecture: [Name Binding and Lexical Scoping](lecturenotes/05-wae.scala)
  * April 20. Exercises *CANCELED due to illness*
- * April 21. Exercise: [Shape language](exercises/01-forms.scala)
+ * April 21. Exercise: [Shape language](exercises/01Forms.scala)
  * April 25. Lecture: [First-Order Functions](lecturenotes/06-f1wae.scala)
  * April 27. Exercise: [Binding and Free Variables](exercises/01HwSolution.scala). Includes solution to first homework.
+ * April 28. Lecture: [Higher-Order Functions](lecturenotes/07-fae.scala) 
+ * May 2. Lecture: [Lazy Evaluation](lecturenotes/08-lcfae.scala)  
+ * May 4. Exercise: [Booleans, Laziness in Scala](exercises/02Ex.scala). Includes solution to second homework.
  
  
 
 Homework
 --------
 
- * [First homework](exercises/01-hw.scala)
- * [Second homework](exercises/02-hw.scala)
+ * [First homework](exercises/01Hw.scala)
+ * [Second homework](exercises/02Hw.scala)
+ * [Third homework](exercises/03Hw.scala)
+
+Forum
+-----
+
+Our lecture has now a forum on https://forum-ps.informatik.uni-tuebingen.de/c/pl1.
+
+Please register to the forum to ask and discuss questions on lectures/homeworks,
+just don't post solutions to the homeworks!
