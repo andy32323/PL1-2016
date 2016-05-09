@@ -1,7 +1,3 @@
-// Notes from the 2th exercise session of the course
-// "Programming Languages I" at Tübingen University.
-// Summer term 2015/2016.
-
 // HOMEWORK ASSIGNMENT
 // ===================
 //
