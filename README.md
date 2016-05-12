@@ -29,9 +29,12 @@ Schedule
 Homework
 --------
 
- * [First homework](exercises/01Hw.scala)
- * [Second homework](exercises/02Hw.scala)
- * [Third homework](exercises/03Hw.scala)
+ * [1st homework](exercises/01Hw.scala)
+ * [2nd homework](exercises/02Hw.scala)
+ * [3rd homework](exercises/03Hw.scala)
+ * [4th homework](exercises/04Hw.scala)
+
+Homework policy: to be admitted to the exam, hand in reasonable solutions to all but two homeworks.
 
 Forum
 -----
