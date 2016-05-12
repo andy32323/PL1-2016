@@ -14,12 +14,17 @@ Schedule
  * April 25. Lecture: [First-Order Functions](lecturenotes/06-f1wae.scala)
  * April 27. Exercise: [Binding and Free Variables](exercises/01HwSolution.scala). Includes solution to first homework.
  * April 28. Lecture: [Higher-Order Functions](lecturenotes/07-fae.scala) 
- * May 2. Lecture: [Lazy Evaluation](lecturenotes/08-lcfae.scala)  
+ * May 2. Lecture: [Lazy Evaluation](lecturenotes/08-lcfae.scala)
  * May 4. Exercise: [Booleans, Laziness in Scala](exercises/02Ex.scala). Includes solution to second homework.
- * May 10. Lecture: [Recursion](lecturenotes/09-rcfae.scala)  
- * May 12- Lecture: [Mutation](lecturenotes/10-bcfae.scala)  
+ * May 9. Lecture: [Recursion](lecturenotes/09-rcfae.scala)
+ * May 11. Exercise. Notes upcoming.
+ * May 12. Lecture: [Mutation](lecturenotes/10-bcfae.scala)
  
+ * May 16-19: *Pfingstpause*, no lectures/exercises.
  
+ * May 23. Lecture.
+ * May 25. Exercise.
+ * May 26. *No lecture due to holiday*.
 
 Homework
 --------
