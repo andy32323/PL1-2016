@@ -16,6 +16,8 @@ Schedule
  * April 28. Lecture: [Higher-Order Functions](lecturenotes/07-fae.scala) 
  * May 2. Lecture: [Lazy Evaluation](lecturenotes/08-lcfae.scala)  
  * May 4. Exercise: [Booleans, Laziness in Scala](exercises/02Ex.scala). Includes solution to second homework.
+ * May 10. Lecture: [Recursion](lecturenotes/09-rcfae.scala)  
+ * May 12- Lecture: [Mutation](lecturenotes/10-bcfae.scala)  
  
  
 
