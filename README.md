@@ -17,7 +17,7 @@ Schedule
  * May 2. Lecture: [Lazy Evaluation](lecturenotes/08-lcfae.scala)
  * May 4. Exercise: [Booleans, Laziness in Scala](exercises/02Ex.scala). Includes solution to second homework.
  * May 9. Lecture: [Recursion](lecturenotes/09-rcfae.scala)
- * May 11. Exercise. Notes upcoming.
+ * May 11. Exercise. [Interpreting CBV and CBN. Meta-level vs object-level.](exercises/03ExHwSolution.scala). Includes solution to third homework.
  * May 12. Lecture: [Mutation](lecturenotes/10-bcfae.scala)
  
  * May 16-19: *Pfingstpause*, no lectures/exercises.
