@@ -1,5 +1,3 @@
-package mine
-
 object Hw03Simple {
   sealed abstract class Exp
   case class Num(n: Int) extends Exp
@@ -246,7 +244,15 @@ object GroupTask {
 
   //Answer: Num(2) appears only 1 for arbitrary N.
 
-  //Let us look at translations of factorial.
+  //Let us look at translations of sum and its use:
+
+  def sum(n: Int): Int =
+    if (n == 0)
+      0
+    else
+      n + sum(n - 1)
+  sum(10)
+  //
   /*
    * Incorrect translation, does not terminate, because it tries to build an
    * infinite expression. At the Scala-level, If is a normal call-by-value
@@ -258,4 +264,7 @@ object GroupTask {
   //
   def factorial(x: Exp): Exp =
     If(Eq(x, 0), 0, Add(x, factorial(Add(x, -1))))
+  //factorial(10) //commented out, it would loop.
+  //A proper translation requires using Letrec, defined in 09-rcfae.scala. Remember from the lecture:
+  //val sum = Letrec('sum, Fun('n, If0('n, 0, Add('n, App('sum, Add('n, -1))))), App('sum, 10))
 }
