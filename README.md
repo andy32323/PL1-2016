@@ -22,7 +22,7 @@ Schedule
  
  * May 16-19: *Pfingstpause*, no lectures/exercises.
  
- * May 23. Lecture.
+ * May 23. Lecture: [Garbage Collection](lecturenotes/11-gc.scala)
  * May 25. Exercise.
  * May 26. *No lecture due to holiday*.
 
