@@ -100,12 +100,26 @@ object evalT extends ExpT {
   def add(e1: Int, e2: Int) = e1+e2
 }
 
+object prettyprintT extends ExpT {
+  var counter = 0
+  type Rep[X] = String
+  def fun[S,T](f: String=>String) = {
+    val varname = "x" + counter.toString
+    counter += 1
+    "(" + varname + " => " +  f("x"+counter.toString) + ")"
+  }
+  def app[S,T](f: String, a: String) = f + "(" + a + ")"
+  def num(n: Int) = n.toString
+  def add(e1: String, e2: String) = "("+e1+"+"+e2+")"
+
+}
 def test2(semantics: ExpT) = {
   import semantics._
   app(app(fun((x:Rep[Int])=>fun((y:Rep[Int])=>add(x,y))),5),3)
 }
 
 val testres2 = test2(evalT)
+val testres3 = test2(prettyprintT)
 
 /* An attempt to construct an ill-formed object program will be detected by
 the Scala type checker. For instance, the following program which adds 
