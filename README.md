@@ -25,6 +25,8 @@ Schedule
  * May 23. Lecture: [Garbage Collection](lecturenotes/11-gc.scala)
  * May 25. Exercise.
  * May 26. *No lecture due to holiday*.
+ * May 30. Lecture: [Syntactic vs Meta](lecturenotes/12-syntacticvsmeta.scala), [Church Encoding](lecturenotes/13-churchencoding.scala)
+ * June 2. Lecture: [Object Algebras](14-objectalgebras.scala)
 
 Homework
 --------
