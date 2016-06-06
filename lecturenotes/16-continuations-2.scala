@@ -137,7 +137,7 @@ object transform {
   sealed abstract class NontrivialContExp extends ContExp
 
   /**
-  No we go through the five case classes of FAE and decide
+  Now we go through the five case classes of FAE and decide
   whether they are trivial or nontrivial, and what there
   subexpressions are.
 
