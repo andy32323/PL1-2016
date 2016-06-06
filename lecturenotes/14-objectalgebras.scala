@@ -1,12 +1,104 @@
 /* Object algebras: A practical way of using Church Encodings */
 
 /* 
-We Church-encode expressions by means of an "object algebra".
-This means that an expression is represented by its own "fold" function,
-i.e., how to traverse that expression bottom-up. Another way
-of phrasing object algebras is to say that each expression is
-encoded as its own "visit" function.
-*/ 
+Let's look at a Scala version of the Church encodings we saw for the lambda
+calculus. We use objects instead of functions, but otherwise 
+it is the same. Let's start with booleans. */
+
+trait Bool {
+  def ifthenelse[T](t: T, e: T) : T
+}
+
+case object T extends Bool {
+  def ifthenelse[T](t: T, e: T) = t
+}
+case object F extends Bool {
+  def ifthenelse[T](t: T, e: T) = e
+}
+def and(a: Bool, b: Bool) : Bool = a.ifthenelse(b,a)
+
+/* In Smalltalk and related languages, booleans are actually implemented 
+like that (at least conceptually). 
+
+In the same way, we can encode Church numerals.
+*/
+
+trait Num {
+  def fold[T](z : T, s: T => T) : T
+}
+case object Zero extends Num {
+  def fold[T](z: T, s: T => T) = z
+}
+
+case class Succ(n: Num) extends Num {
+  def fold[T](z: T, s: T => T) = s(n.fold(z,s))
+}
+
+def plus(a: Num, b: Num) = {
+  new Num {
+    def fold[T](z : T, s : T => T) : T = {
+      a.fold(b.fold(z,s), s)
+    }
+  }
+}
+
+val one = Succ(Zero)
+val two = Succ(one)
+val three = Succ(two)
+
+def testplus = plus(two,three).fold[Unit]( (), _ => print("."))
+
+/*
+Object algebras are a different way to do Church encodings
+in object-oriented languages. This is what the encoding
+of Church numbers looks like in object algebra style.
+*/
+
+
+trait NumSig[T] {
+  def z : T
+  def s(p: T) : T
+}
+
+trait Num { def apply[T](x: NumSig[T]) : T }
+
+/* In other words, every constructor of data type is turned into
+a function of the NumSig type, whereby recursive occurences are replaced
+by the type constructor T. Actual numbers have the type Num, i.e.,
+they are basically functions of type NumSig[T] => T.
+
+In the terminology of universal algebra, NumSig is an algebraic
+signature, and NumSig[T] => T is the type of algebras for that signature.
+
+In this encoding, the plus function looks like this: */
+
+def plus(a: Num, b: Num) = new Num {
+  def apply[T](x: NumSig[T]) : T = a( new NumSig[T] {
+    def z = b(x)
+    def s(p:T) = x.s(p)
+  })
+}
+
+/* Here is the representation of some numbers. */
+val zero : Num = new Num { def apply[T](x: NumSig[T]) = x.z }
+val one : Num = new Num { def apply[T](x: NumSig[T]) = x.s(x.z) }
+val two : Num = new Num { def apply[T](x: NumSig[T]) = x.s(one(x)) }
+val three : Num = new Num { def apply[T](x: NumSig[T]) = x.s(two(x)) }
+
+/* This is an interpretation of the Num "language" as Scala integers. */
+object NumAlg extends NumSig[Int] {
+  def z = 0
+  def s(x : Int ) = x+1
+}
+
+val testplus = plus(two, three)(NumAlg) // yields 5
+
+/*
+Let's look at a more useful application of object algebras. We encode
+expression trees as object algebras.
+*/
+
+
 trait Exp[T] {
   implicit def id(name: Symbol) : T
   def fun(param: Symbol, body: T): T
@@ -129,4 +221,10 @@ def testilltyped(semantics: ExpT) = {
   import semantics._
   add(5,fun((x: Rep[Int]) => x))
 }
+
+
+References:
+
+B. Olivira, W.Cook. Extensibility for the Masses: Practical Extensibility with Object Algebras. Proc. ECOOP 2012.
+
 */
