@@ -70,6 +70,11 @@ they are basically functions of type NumSig[T] => T.
 In the terminology of universal algebra, NumSig is an algebraic
 signature, and NumSig[T] => T is the type of algebras for that signature.
 
+Compared to the Church encoding above, we bundle the arguments of the
+fold function into a trait NumSig and pass them as a single object.
+The advantage of this encoding is that we can extend the set of parameters
+of the fold by using inheritance.
+
 In this encoding, the plus function looks like this: */
 
 def plus(a: Num, b: Num) = new Num {
