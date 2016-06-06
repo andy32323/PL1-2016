@@ -111,9 +111,12 @@ object transform {
   reformulate the three properties of programs in
   continuation-passing style as follows:
 
-   1. All non-trivial expressions are in tail position.
+   1. All non-trivial expressions are in tail position; equivalently, all
+      expressions not in tail position are trivial.
    2. All functions take continuation arguments.
-   3. No trivial expressions are in tail position.
+   3. No trivial expressions are in tail position; equivalently, all
+      expressions that are trivial are not in tail position, and all
+      expressions that are in tail position are nontrivial.
 
   Note how the third property used to be semantic (what happens
   at run time) and became syntactic (how programs look like). The
@@ -167,7 +170,7 @@ object transform {
   Evaluation of `ContAdd` will work by evaluating the
   subexpressions first, and then doing the addition. So neither
   of the subexpressions is in tail positions, so they have to be
-  trivial, by the third property of programs in CPS. We therefore
+  trivial, by the first property of programs in CPS. We therefore
   use `TrivialContExp` for both `lhs` and `rhs`.
   */
 
@@ -188,7 +191,7 @@ object transform {
   Next we have to think about application. Evaluating an
   application means evaluating the subexpressions first and then
   calling the function. So the subexpressions are not in tail
-  position and therefore have to be trivial by the third property
+  position and therefore have to be trivial by the first property
   of programs in CPS. We therefore use `TrivalContExp` for
   `funExpr` and `argExpr`.
 
