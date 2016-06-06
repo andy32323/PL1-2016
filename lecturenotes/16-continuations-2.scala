@@ -305,6 +305,17 @@ object transform {
     Symbol(name + "_" + counter)
   }
 
+  def subst(e1: Exp, x: Symbol, e2: Exp): Exp = e1 match {
+    case Num(n)    => e1
+    case Add(l, r) => Add(subst(l, x, e2), subst(r, x, e2))
+    case Id(y)     => if (x == y) e2 else Id(y)
+    case App(f, a) => App(subst(f, x, e2), subst(a, x, e2))
+    case Fun(param, body) =>
+      if (param == x) e1 else {
+        val newvar = freshName(param.name)
+        Fun(newvar, subst(subst(body, param, Id(newvar)), x, e2))
+      }
+  }
   /**
   The Transformation
   ------------------
@@ -327,9 +338,11 @@ object transform {
       }
 
       case Fun(param, body) =>
+        val newParam = freshName(param.name)
         val dynk = freshName("dynk")
+
         AppContinuation(k,
-          ContFun(param, dynk, cps(body, dynk)))
+          ContFun(newParam, dynk, cps(subst(body, param, newParam), dynk)))
 
         // in the function body, we have two continuations:
         //
