@@ -327,8 +327,9 @@ object transform {
       }
 
       case Fun(param, body) =>
+        val dynk = freshName("dynk")
         AppContinuation(k,
-          ContFun(param, 'dynk, cps(body, 'dynk)))
+          ContFun(param, dynk, cps(body, dynk)))
 
         // in the function body, we have two continuations:
         //
@@ -339,9 +340,11 @@ object transform {
         //       (dynamic continuation)
 
       case App (funExpr, argExpr) =>
-        cps(funExpr, FunContinuation('f,
-          cps(argExpr, FunContinuation('a,
-            ContApp('f, 'a, k)))))
+        val f = freshName("f")
+        val a = freshName("a")
+        cps(funExpr, FunContinuation(f,
+          cps(argExpr, FunContinuation(a,
+            ContApp(f, a, k)))))
     }
 
   /**
