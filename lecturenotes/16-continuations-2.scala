@@ -308,6 +308,16 @@ object transform {
     Symbol(name + "_" + counter)
   }
 
+  def freshen(e1: Exp, m: Map[Symbol, Symbol]): Exp = e1 match {
+    case Num(n)    => e1
+    case Add(l, r) => Add(freshen(l, m), freshen(r, m))
+    case Id(y) =>
+      Id(m.getOrElse(y, y))
+    case App(f, a) => App(freshen(f, m), freshen(a, m))
+    case Fun(param, body) =>
+      val newvar = freshName(param.name)
+      Fun(newvar, freshen(body, m + (param -> newvar)))
+  }
   /**
   The Transformation
   ------------------
@@ -330,8 +340,12 @@ object transform {
       }
 
       case Fun(param, body) =>
+        //We would also need to freshen param, but for simplicity we do that first with
+        //freshen.
+        val dynk = freshName("dynk")
+
         AppContinuation(k,
-          ContFun(param, 'dynk, cps(body, 'dynk)))
+          ContFun(param, dynk, cps(body, dynk)))
 
         // in the function body, we have two continuations:
         //
@@ -342,9 +356,11 @@ object transform {
         //       (dynamic continuation)
 
       case App (funExpr, argExpr) =>
-        cps(funExpr, FunContinuation('f,
-          cps(argExpr, FunContinuation('a,
-            ContApp('f, 'a, k)))))
+        val f = freshName("f")
+        val a = freshName("a")
+        cps(funExpr, FunContinuation(f,
+          cps(argExpr, FunContinuation(a,
+            ContApp(f, a, k)))))
     }
 
   /**
@@ -352,6 +368,8 @@ object transform {
   ensuring that we don't forget any continuation arguments or mix
   up trivial and nontrivial expressions.
   */
+  def startCps(e: Exp) =
+    cps(freshen(e, Map.empty), 'k)
 }
 
 import transform._
