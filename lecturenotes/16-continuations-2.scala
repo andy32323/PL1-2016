@@ -1,14 +1,3 @@
-/*
-These are lecture notes for the "Programming Languages and Types" course by Klaus Ostermann 
-at the University of Marburg
-
-loosely based on Sec. 18 of "Programming Languages: Application and Interpretation" by
-Shriram Krishnamurthi
-
-Please comment/correct/improve these notes via github. Proposals or questions can
-be submitted as an "issue"; proposals for corrections/extensions/improvements can
-be submitted as a "pull request". You can of course also send an email to Klaus Ostermann */
-
 
 /* Today's goal is to make the "web" (or rather, CPS) transformation which we applied informally
   in the previous lecture formal.
