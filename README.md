@@ -27,10 +27,9 @@ Schedule
  * May 26. *No lecture due to holiday*.
  * May 30. Lecture: [Syntactic vs Meta](lecturenotes/12-syntacticvsmeta.scala), [Church Encoding](lecturenotes/13-churchencoding.scala)
  * June 2. Lecture: [Object Algebras](lecturenotes/14-objectalgebras.scala)
- * June 6. Lecture: [Programming in Continuation-Passing Style](lecturenotes/15-continuations-1.scala)
+ * June 6 and 9. Lecture: [Programming in Continuation-Passing Style](lecturenotes/15-continuations-1.scala)
  * June 8. Exercise.
- * June 9. Lecture.
- * June 13. Lecture.
+ * June 13. Lecture: [CPS Transformation](lecturenotes/16-continuations-2.scala), [letcc examples](lecturenotes/17-letcc-examples.rkt)
  * June 15. **Lecture** instead of exercise (at usual hour and room: 12-14, room A301).
  * June 16. **Exercise** instead of lecture (at usual hour and room: 14-16, room A301).
 
