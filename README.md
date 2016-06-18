@@ -31,7 +31,7 @@ Schedule
  * June 8. Exercise.
  * June 13. Lecture: [CPS Transformation](lecturenotes/16-continuations-2.scala), [letcc examples](lecturenotes/17-letcc-examples.rkt)
  * June 15. **Lecture** instead of exercise (at usual hour and room: 12-14, room A301).
- * June 16. **Exercise** instead of lecture (at usual hour and room: 14-16, room A301).
+ * June 16. **Exercise** instead of lecture (at usual hour and room: 14-16, room A301). [Exercise notes and solutions 7th homework](exercises/07ExHwSolution.scala).
 
 
 Homework
