@@ -42,6 +42,7 @@ Homework
  * [3rd homework](exercises/03Hw.scala)
  * [4th homework](exercises/04Hw.scala)
  * 5th, 6th, 7th homework: in our forum.
+ * [8th homework](exercises/08Hw.scala)
 
 Homework policy: to be admitted to the exam, hand in reasonable solutions to all but two homeworks.
 
