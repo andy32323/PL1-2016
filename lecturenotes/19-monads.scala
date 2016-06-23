@@ -169,10 +169,10 @@ trait Monad[M[_]] {
   //    1b) bind(x, y => unit(y)) == x
   // 2) Bind enjoys an associative property
   //     bind(bind(x,f),g) == bind(x, y => bind(f(y),g))
-  implicit def monadicSyntax[A](m: M[A]) = new {
-    def map[B](f: A => B) = bind(m, (x: A) => unit(f(x)))
-    def flatMap[B](f: A => M[B]) : M[B] = bind(m,f)
-  }    
+  implicit def monadicSyntax[A, M[_]](m: M[A])(implicit mm: Monad[M]) = new {
+    def map[B](f: A => B) = mm.bind(m, (x: A) => mm.unit(f(x)))
+    def flatMap[B](f: A => M[B]): M[B] = mm.bind(m, f)
+  }
 }
 
 /** 
@@ -309,6 +309,9 @@ Note: We should be able to use for-comprehension syntax here, that is:
       } yield !y
 
 but this does not work due to technical limitations related to Scala implicit resolution.
+  
+This limitation is likely to be removed in the next major Scala version, see
+  https://github.com/scala/scala/pull/5102
 
  
 The State Monad
@@ -358,7 +361,7 @@ The List Monad
 --------------  
 In the _list monad_, computations produce lists of results. The bind operator combines all those results in a single list.
 */  
-trait ListMonad extends Monad[List] {
+object ListMonad extends Monad[List] {
   override def bind[A,B](x: List[A], f: A => List[B]) : List[B] = x.flatMap(f) // apply f to each element, concatenate the resulting lists
   override def unit[A](a: A) = List(a)
 }  
@@ -384,20 +387,30 @@ def clientCode =
 The monadic version of the client code stays the same, as expected:
 */  
   
-def clientCode(implicit m: ListMonad) =
-  m.bind(f(27), ((x: String) =>
-  m.bind(g(x+"z"), ((y: Boolean) =>
-  m.unit(!y)))))
+
+def clientCode = {
+  implicit val m = ListMonad
+  for {
+    x <- f(27)
+    y <- g(x+"z")
+  } yield !y
+}
 
 /** 
 The Continuation Monad
 ----------------------  
 The last monad we are going to present is the continuation monad,  which stands for computations that are continuations. 
 */
+
+
 trait ContinuationMonad[R] extends Monad[({type M[A] = (A => R) => R})#M] {
-  override def bind[A,B](x: (A => R) => R, f: A => (B => R) => R) : (B => R) => R = 
+  type Cont[X] = (X => R) => R
+
+  override def bind[A,B](x: Cont[A], f: A => Cont[B]) : Cont[B] = 
      k => x( a => f(a)(k)) // construct continuation for x that calls f with the result of x               
-  override def unit[A](a: A) : (A => R) => R = k => k(a)
+  override def unit[A](a: A) : Cont[A] = k => k(a)
+  
+  def callcc[A,B](f: (A => Cont[B]) => Cont[A]   ) : Cont[A] = k => f( (a:A) => (_:B=>R) => k(a))(k)
 }
 
 /** 
@@ -418,7 +431,103 @@ becomes :
 
 The monadic version hides the CPS transformation in the operations of the Monad.  
 */
+
+
 def clientCode[R](implicit m: ContinuationMonad[R]) =
   m.bind(f(27), ((x: String) =>
   m.bind(g(x+"z"), ((y: Boolean) =>
   m.unit(!y)))))  
+
+
+  
+// let's implement 1 + (2+3) in monadic style and implicitly CPS-transform using the continuation monad
+
+// unfortunately we can, again, not use for-comprehension syntax, for the same
+// reason it does not work for the Reader monad
+def ex123[R](implicit m: ContinuationMonad[R])  = {
+  m.bind(
+    m.bind(m.unit(2), (two:Int) =>
+      m.bind(m.unit(3), (three:Int) => m.unit(two+three))),
+    (five:Int) => m.unit(1+five))  
+}  
+
+def runex123 = ex123(new ContinuationMonad[Int]{})(x=>x)
+
+// let's implement the (+ 1 (let/cc k (+ 2 (k 3)))) example using callcc
+
+def excallcc[R](implicit m: ContinuationMonad[R])  = {
+  m.bind(
+    m.bind(m.unit(2), 
+           (two:Int) => m.callcc[Int,Int]( k => m.bind(k(3), (three:Int) => m.unit(two+three)))),
+    (five:Int) => m.unit(1+five))  
+}  
+def runexcallcc = excallcc(new ContinuationMonad[Int]{})(x=>x)
+
+// Remember how we had to CPS-transform the "map" function in the "allCosts" example when we talked about continuations?
+// Now we can define a monadic version of "map" that works for any monad, including the continuation monad
+
+def mapM[M[_],A,B](x: List[A], f: A => M[B])(implicit m: Monad[M]) : M[List[B]] = sequence(x.map(f))
+
+
+/**
+Monad Transformers
+------------------
+
+The purpose of monad transformers is to compose monads.
+
+For instance, what if we want to have both the list monad and the option monad
+at the same time? Such situations arise very often in practical code.
+
+One solution is to have a monad transformer version of each monad, which is
+parameterized with another monad. We show this for the Option monad case.
+
+*/
+  
+type OptionT[M[_]] = { type x[A] = M[Option[A]] }
+
+        
+class OptionTMonad[M[_]](val m : Monad[M]) extends Monad[OptionT[M]#x] {
+
+  override def bind[A,B](x : M[Option[A]], f: A => M[Option[B]]) : M[Option[B]] = 
+    m.bind(x, (z: Option[A]) => z match { case Some(y) => f(y)
+                                          case None => m.unit(None) })
+
+  override def unit[A](a: A) = m.unit(Some(a))  
+
+  def lift[A](x: M[A]) : M[Option[A]] = m.bind(x, (a: A) => m.unit(Some(a)))                                   
+}	
+
+val ListOptionM = new OptionTMonad(ListMonad)
+
+// in this case, for-comprehension syntax doesn't work because it clashes with the built-in support for
+// for-comprehensions for lists :-(
+def example = {
+  val m = ListOptionM
+  m.bind(List(Some(3),Some(4)), (x: Int) => m.unit(x+1))
+}        
+
+def example2 = {
+  val m = ListOptionM
+  m.bind(List(Some(3),Some(4)), (x: Int) => m.lift(List(1,2,3,x)))
+}        
+
+def example3 = {
+  val m = ListOptionM
+  m.bind(List(Some(3),None,Some(4)), (x: Int) => m.unit(x+1))
+}        
+
+def example4 = {
+  val m = ListOptionM
+  m.bind(List(Some(3),Some(4)), (x: Int) => if (x > 3) m.m.unit(None) else m.unit(x*2))
+}        
+
+/*
+Monad transformers are a standard way to compose monads, e.g., in Haskell and in scalaz.
+
+They have a number of well-known disadvantages. For instance, one needs additional transformer
+versions of monads and the required lifting sometimes destroys modularity.
+
+There are a number of alternative proposals to monad transformers, such as "extensible effects".
+https://hackage.haskell.org/package/extensible-effects
+
+*/
