@@ -169,10 +169,11 @@ trait Monad[M[_]] {
   //    1b) bind(x, y => unit(y)) == x
   // 2) Bind enjoys an associative property
   //     bind(bind(x,f),g) == bind(x, y => bind(f(y),g))
-  implicit def monadicSyntax[A, M[_]](m: M[A])(implicit mm: Monad[M]) = new {
-    def map[B](f: A => B) = mm.bind(m, (x: A) => mm.unit(f(x)))
-    def flatMap[B](f: A => M[B]): M[B] = mm.bind(m, f)
-  }
+}
+
+implicit def monadicSyntax[A, M[_]](m: M[A])(implicit mm: Monad[M]) = new {
+  def map[B](f: A => B) = mm.bind(m, (x: A) => mm.unit(f(x)))
+  def flatMap[B](f: A => M[B]): M[B] = mm.bind(m, f)
 }
 
 /** 
@@ -307,7 +308,7 @@ Note: We should be able to use for-comprehension syntax here, that is:
         x <- f(27)
         y <- g(x+"z")
       } yield !y
-
+      
 but this does not work due to technical limitations related to Scala implicit resolution.
   
 This limitation is likely to be removed in the next major Scala version, see
