@@ -410,6 +410,8 @@ trait ContinuationMonad[R] extends Monad[({type M[A] = (A => R) => R})#M] {
      k => x( a => f(a)(k)) // construct continuation for x that calls f with the result of x               
   override def unit[A](a: A) : Cont[A] = k => k(a)
   
+  // callcc is like letcc; the difference is that letcc binds a name, whereas callcc expects a function as argument
+  // That means that letcc(k,...) is expressed as callcc( k => ...).
   def callcc[A,B](f: (A => Cont[B]) => Cont[A]   ) : Cont[A] = k => f( (a:A) => (_:B=>R) => k(a))(k)
 }
 
