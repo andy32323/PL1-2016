@@ -3,6 +3,10 @@ PL1-2016
 
 Programming Languages I - University of Tübingen
 
+Exam
+----
+The exam takes place on Thursday, 21.7.2016, 13.15h in A103.
+
 Schedule
 --------
 
