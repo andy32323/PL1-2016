@@ -30,8 +30,11 @@ Schedule
  * June 6 and 9. Lecture: [Programming in Continuation-Passing Style](lecturenotes/15-continuations-1.scala)
  * June 8. Exercise.
  * June 13. Lecture: [CPS Transformation](lecturenotes/16-continuations-2.scala), [letcc examples](lecturenotes/17-letcc-examples.rkt)
- * June 15. **Lecture** instead of exercise (at usual hour and room: 12-14, room A301).
- * June 16. **Exercise** instead of lecture (at usual hour and room: 14-16, room A301). [Exercise notes and solutions 7th homework](exercises/07ExHwSolution.scala).
+ * June 15. Lecture: [Letcc](lecturenotes/17-letcc-examples.rkt), [First Class Continuations](lecturenotes/18-firstclasscontinuations.scala)
+ * June 16. Exercis: [Exercise notes and solutions 7th homework](exercises/07ExHwSolution.scala).
+ * June 20 and 23. Lecture: [Monads](lecturenotes/19-monads.scala)
+ * June 27. Lecture: [Defunctionalization](lecturenotes/20-defunctionalization.scala)
+ * June 30. Lecture: [Type Systems](lecturenotes/21-typesystems.scala)
 
 
 Homework
