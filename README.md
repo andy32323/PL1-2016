@@ -3,6 +3,10 @@ PL1-2016
 
 Programming Languages I - University of Tübingen
 
+Exam
+----
+The exam takes place on Thursday, 21.7.2016, 13.15h in A103.
+
 Schedule
 --------
 
@@ -44,6 +48,8 @@ Homework
  * [4th homework](exercises/04Hw.scala)
  * 5th, 6th, 7th homework: in our forum.
  * [8th homework](exercises/08Hw.scala)
+ * [9th homework](exercises/09Hw.md). This is in *Markdown format*, hence
+   designed to be viewed in the browser from GitHub.
 
 Homework policy: to be admitted to the exam, hand in reasonable solutions to all but two homeworks.
 
