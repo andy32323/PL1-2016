@@ -5,7 +5,7 @@ The Simply-Typed Lambda Calculus
 We start with the untyped substitution-based lambda calculus augmented by the possibility to add type annotations to function definitions. The type annotation is ignored by the interpreter.
 
 Why are we using the substitution-based interpreter? Because it is simpler to state the type soundness
-theorem. If we had values that are separate from expressions, we would need to define a type system for 
+theorem. If we had values that are separate from expressions, we would need to define a type system for
 these values. This is particularly tricky for closures with their embedded environments.
 
 We also show a couple of standard extensions to the simply-typed lambda calculus:
@@ -45,7 +45,7 @@ case class EliminateSum(e: Exp, fl: Exp, fr: Exp) extends Exp
 
 def freshName(names: Set[Symbol], default: Symbol) : Symbol = {
   var last : Int = 0
-  var freshName = default  
+  var freshName = default
   while (names contains freshName) { freshName = Symbol(default.name+last.toString); last += 1; }
   freshName
 }
@@ -74,13 +74,13 @@ def subst(e1 : Exp, x: Symbol, e2: Exp) : Exp = e1 match {
   case Id(y) => if (x == y) e2 else Id(y)
   case App(f,a) => App(subst(f,x,e2),subst(a,x,e2))
   case TypeAscription(e,t) => TypeAscription(subst(e,x,e2),t)
-  case Fun(param,t,body) => 
+  case Fun(param,t,body) =>
     if (param == x) e1 else {
       val fvs = freeVars(body) ++ freeVars(e2)
       val newvar = freshName(fvs, param)
       Fun(newvar, t,subst(subst(body, param, Id(newvar)), x, e2))
-    }                            
-  case Let(y,ydef,body) => 
+    }
+  case Let(y,ydef,body) =>
     if (x == y) Let(y,subst(ydef,x,e2),body) else {
       val fvs = freeVars(body) ++ freeVars(e2)
       val newvar = freshName(fvs,y)
@@ -136,7 +136,7 @@ case class ProductType(fst: Type, snd: Type) extends Type
 
 case class SumType(left: Type, right: Type) extends Type
 
-/** 
+/**
 The type checker for the so-called _Simply-Typed Lambda Calculus_  (STLC). To deal with identifiers, we need an abstraction of environments.  A type environment has the form ``Map[Symbol,Type]``.
 
 The type checker for the STLC is as follows:
@@ -176,13 +176,13 @@ def typeCheck(e: Exp, gamma: Map[Symbol,Type]) : Type = e match {
   case Right(t,e) => SumType(t, typeCheck(e,gamma))
   case EliminateSum(e,fl,fr) => typeCheck(e,gamma) match {
     case SumType(left,right) => (typeCheck(fl,gamma), typeCheck(fr,gamma)) match {
-      case (FunType(left,t1),FunType(right,t2)) => 
+      case (FunType(left,t1),FunType(right,t2)) =>
         if (t1 == t2) t1 else sys.error("type error: functions must have same return type")
       case _ => sys.error("type error in EliminateSum: second and third argument must be functions")
     }
     case _ => sys.error("type error: can only eliminate sums")
   }
-  
+
 }
 
 /* Soundness of Simply-Typed Lambda Calculus (STLC) :
