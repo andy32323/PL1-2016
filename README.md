@@ -37,6 +37,7 @@ Schedule
  * June 20 and 23. Lecture: [Monads](lecturenotes/19-monads.scala)
  * June 27. Lecture: [Defunctionalization](lecturenotes/20-defunctionalization.scala)
  * June 30. Lecture: [Type Systems](lecturenotes/21-typesystems.scala)
+ * July 4. Lecture: [Simply-typed Lambda Calculus](lecturenotes/22-stlc.scala)
 
 
 Homework
