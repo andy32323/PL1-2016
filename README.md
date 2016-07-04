@@ -3,6 +3,10 @@ PL1-2016
 
 Programming Languages I - University of Tübingen
 
+Exam
+----
+The exam takes place on Thursday, 21.7.2016, 13.15h in A103.
+
 Schedule
 --------
 
@@ -19,14 +23,21 @@ Schedule
  * May 9. Lecture: [Recursion](lecturenotes/09-rcfae.scala)
  * May 11. Exercise. [Interpreting CBV and CBN. Meta-level vs object-level](exercises/03ExHwSolution.scala). Includes solution to third homework.
  * May 12. Lecture: [Mutation](lecturenotes/10-bcfae.scala)
- 
  * May 16-19: *Pfingstpause*, no lectures/exercises.
- 
  * May 23. Lecture: [Garbage Collection](lecturenotes/11-gc.scala)
  * May 25. Exercise.
  * May 26. *No lecture due to holiday*.
  * May 30. Lecture: [Syntactic vs Meta](lecturenotes/12-syntacticvsmeta.scala), [Church Encoding](lecturenotes/13-churchencoding.scala)
  * June 2. Lecture: [Object Algebras](lecturenotes/14-objectalgebras.scala)
+ * June 6 and 9. Lecture: [Programming in Continuation-Passing Style](lecturenotes/15-continuations-1.scala)
+ * June 8. Exercise.
+ * June 13. Lecture: [CPS Transformation](lecturenotes/16-continuations-2.scala), [letcc examples](lecturenotes/17-letcc-examples.rkt)
+ * June 15. Lecture: [Letcc](lecturenotes/17-letcc-examples.rkt), [First Class Continuations](lecturenotes/18-firstclasscontinuations.scala)
+ * June 16. Exercis: [Exercise notes and solutions 7th homework](exercises/07ExHwSolution.scala).
+ * June 20 and 23. Lecture: [Monads](lecturenotes/19-monads.scala)
+ * June 27. Lecture: [Defunctionalization](lecturenotes/20-defunctionalization.scala)
+ * June 30. Lecture: [Type Systems](lecturenotes/21-typesystems.scala)
+ * July 4. Lecture: [Simply-typed Lambda Calculus](lecturenotes/22-stlc.scala)
 
 
 Homework
@@ -36,6 +47,10 @@ Homework
  * [2nd homework](exercises/02Hw.scala)
  * [3rd homework](exercises/03Hw.scala)
  * [4th homework](exercises/04Hw.scala)
+ * 5th, 6th, 7th homework: in our forum.
+ * [8th homework](exercises/08Hw.scala)
+ * [9th homework](exercises/09Hw.md). This is in *Markdown format*, hence
+   designed to be viewed in the browser from GitHub.
 
 Homework policy: to be admitted to the exam, hand in reasonable solutions to all but two homeworks.
 

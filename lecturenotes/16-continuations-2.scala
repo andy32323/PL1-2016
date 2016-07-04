@@ -1,379 +1,182 @@
-/**
-Automatic Transformation into CPS
-=================================
 
-In the previous lecture, we learned about continuation-passing
-style (CPS), how it allows to treat execution order as a
-first-class concept, and how to manually transform a program into
-it. Today, we want to write an automatic transformation from an
-FAE program in direct style into the equivalent program in
-continuation-passing style. On the way, we will also learn how to
-use the Scala type system to help us encode the specification of
-a transformation like this.
-*/
+/* Today's goal is to make the "web" (or rather, CPS) transformation which we applied informally
+  in the previous lecture formal.
+  
+  In the previous lecture we have seen that we had to translate the following program:
 
-object transform {
+  println("The sum is: "+ (inputNumber("First number:" ) + inputNumber("Second number")))
 
-  /**
-  Precise typing
-  --------------
+  into this program:
 
-  The transformation will be a Scala method that pattern matches
-  on FAE expressions, and creates other FAE expressions. The
-  signature of that method could be:
+  webread_k("First number", (n) =>
+             webread_k("Second number:", (m) => webdisplay("The sum is: "+(n+m))))
+             
+  This hand-translation is sufficient if this expression is the entire program.
+  
+  If we wish to use it as a sub-expression in a larger program, this does not suffice,
+  because there may be a pending computation outside its own evaluation. For that
+  reason, the program has to send its result to a continuation instead of returning it:
 
-      def cps(exp: Exp): Exp
+  k => webread_k("First number", (n) =>
+             webread_k("Second number:", (m) => webdisplay("The sum is: "+k(n+m))))
+             
+  This version can be employed in the transformation of a larger program. In the special
+  case where this is the entire program we can apply the transformed term to the identity
+  function to get the same result as the previous manual transformation.
 
-  Of course, the idea would be that `cps` always returns
-  expressions in continuation-passing style. To ensure that we
-  get the implementation of `cps` right, we would have to write a
-  test suite, or make a proof, or at least think hard about
-  whether our implement is correct. Instead of going this route,
-  we are going to define a set of case classes that exactly
-  encode FAE programs in CPS but no other FAE programs. We can
-  then use a signature such as the following for the
-  transformation:
+  In general, every term, when converted to CPS, will be have the following properties
+  (see O. Danvy, Three Steps for the CPS Transformation, 1991):
+  
+  1) The values of all intermediate applications are given a name
+  2) The evaluation of these applications is sequentialized based on a traversal of their
+     abstract syntax tree.
+  3) The results of the transformation are procedures that expect a continuation parameter -
+     a lambda abstraction whose application to intermediate values yields the final result 
+     of the whole evaluation.
+     
+  Let us now look at the transformation of a function application. For instance, let us 
+  consider the term 
+    f(a)(g(b))  
+  The transformation of the function argument, f(a), should be
+    f_k(a, fval => ...)
+  Similarly, the transformation of the argument position would be:
+    g_k(b, aval => ...)
+  Given these two values, fval and aval, we can now perform the application, like so:
+    k(fval(aval))
+  However, this will not work, because if fval makes a web interaction itself it will not return.
+  Instead, k must be given as an argument to the function, like so:
+    k => f_k(a, fval => g_k(b, aval => fval(aval,k))) 
+  Reading this sequentially, it says to evaluate the function expression, store its value in fval,
+  then evaluate the argument, store its value in aval, and finally invoke the function on the argument.
+  This function's continuation is the same as that of the function application itself.
+  
+  What about variables and constants? Since every term in CPS must be a function that consumes a continuation,
+  the constant is simply send to the continuation. For instance, the CPS transformation of 
+  the number 3 is k => k(3)
+  
+  What about function definitions, such as x => x ? Since every lambda expression is also a constant,
+  we might be tempted to use the same rule as above, i.e.,
+    k => k(x => x)
+  However, the transformation is more subtle. A function application invokes the function on two arguments, whereas
+  the original function x=>x consumes only one. What is the second argument?
+  
+  Answer: It is the _dynamic_ continuation, i.e., the continuation at the time of the function _application_
+  (as opposed to its definition). We cannot ignore this continuation: It is the stack active at the point
+  of function invocation, so we want to preserve it. This is in contrast to what we did with environments,
+  and more in line with our treatment of the store. The transformed version hence reads:
+  
+  k => k( (x,dynk) => (k => k(x))(dynk))
 
-      def cps(exp: Exp): ContExp
+  which is equivalent (when the inner application finally happens) to:
+  
+  k => k( (x,dynk) => dynk(x))
+  
+  This is a function that accepts a value and a dynamic continuation and sends the value to that continuation.
+  
+  We are now ready to write this transformation formally, as a source-to-source transformation. This transformation
+  could have the type cps(e: Exp): Exp, but we choose a different type for two reasons:
+  1) In CPS we need function definitions and applications with two arguments instead of one. This could be addressed
+     by adding new syntax.
+  2) More importantly, we want the invariants of the CPS format to be clearly visible in the syntax definition of the
+     result, most importantly the fact that all function applications are tail calls.
+  For this reason, we define a special new syntax for CPS-transformed terms. Here is our original syntax: */     
+  
+sealed abstract class Exp
+case class Num(n: Int) extends Exp
+case class Id(name: Symbol) extends Exp
+case class Add(lhs: Exp, rhs: Exp) extends Exp
+case class Fun(param: Symbol, body: Exp) extends Exp
+case class App (funExpr: Exp, argExpr: Exp) extends Exp
+implicit def num2exp(n: Int) = Num(n)
+implicit def id2exp(s: Symbol) = Id(s)
 
-  The benefit will be that when we implement `cps`, the Scala
-  typechecker will ensure that we actually return an expression
-  in CPS, because all values of the type `ContExp` represent
-  expressions in CPS.
-
-  Source, target, and meta language
-  ---------------------------------
-
-  When we think about a transformation between languages, it
-  helps to use different words for the different languages
-  involved:
-
-    - The *source language* is the language the input to the
-      transformation is written in. In the lecture today, the
-      source language is FAE.
-
-    - The *target language* is the language the output of the
-      transformation is written in. In the lecture today, the
-      target language is FAE in continuation-passing style.
-
-    - The *meta language* is the language the transformation
-      itself is written in. In the lecture today, the meta
-      language is Scala.
-
-  The source language
-  -------------------
-
-  Our source language is simply FAE, as defined in a previous
-  lecture. We copy the relevant definitions here:
-  */
-
-  sealed abstract class Exp
-  case class Num(n: Int) extends Exp
-  case class Id(name: Symbol) extends Exp
-  case class Add(lhs: Exp, rhs: Exp) extends Exp
-  implicit def num2exp(n: Int) = Num(n)
-  implicit def id2exp(s: Symbol) = Id(s)
+/* For CPS transformed terms, we define two different syntactic categories: Values (CPSVal) and Expressions (CPSExp).
+   The syntax makes clear that all arguments of a function application are values - hence no nesting of applications
+   can occur. Furthermore, the syntax differentiates between defining an ordinary function (CPSFun) which, when translated,
+   gets an additional continuation parameter, and Continuation Functions (CPSCont), which are the result of the CPS 
+   transformation. Correspondingly, we have two different forms of applications, CPSContApp and CPSFunApp.
    
-  case class Fun(param: Symbol, body: Exp) extends Exp
-  case class App (funExpr: Exp, argExpr: Exp) extends Exp
+   Here is the formal definition: */
+sealed abstract class CPSVal
+abstract class CPSExp extends CPSVal
+case class CPSNum(n: Int) extends CPSVal
+case class CPSCont(v: Symbol, body: CPSExp) extends CPSVal
+case class CPSFun(x: Symbol, k: Symbol, body: CPSExp) extends CPSVal
+case class CPSVar(x: Symbol) extends CPSVal { override def toString = x.toString }
+implicit def id2cpsexp(x: Symbol) = CPSVar(x)
 
-  /**
-  Target language
-  ---------------
+case class CPSContApp(k: CPSVal, a: CPSVal) extends CPSExp
+case class CPSFunApp(f: CPSVar, a: CPSVar, k: CPSVar) extends CPSExp // the arguments are even CPSVar and not only CPSVal!
+case class CPSAdd(l: CPSVar, r: CPSVar) extends CPSExp
 
-  The target language should be the subset of the source language
-  that is in continuation-passing style, that is, the subset
-  where programs have the three properties from the previous
-  lecture:
-
-    1. All calls are in tail position.
-    2. All functions take continuation arguments.
-    3. No function returns a value.
-
-  To be able to formalize these properties in the Scala
-  typesystem, we reformulate them using the terms "non-trivial
-  expression" and "trivial expression" that we already used
-  informally in the previous lecture.  Now it is time to define
-  them more formally:
-
-    - An expression is *non-trivial* if evaluating it might take
-      a long time, multiple steps, or might not
-      terminate. Example: Function calls.
-
-    - An expression is *trivial* if evaluating it is sure to be
-      instantaneous and always succeeds. Example: Integer
-      literals.
-
-  In CPS, trivial subexpressions will be left alone. In
-  particular, they will still return values. But every nontrivial
-  subexpressions needs to be changed so that it accepts and calls
-  a continuation instead of returning a value. So we can
-  reformulate the three properties of programs in
-  continuation-passing style as follows:
-
-   1. All non-trivial expressions are in tail position.
-   2. All functions take continuation arguments.
-   3. No trivial expressions are in tail position.
-
-  Note how the third property used to be semantic (what happens
-  at run time) and became syntactic (how programs look like). The
-  two versions of the third property still mean the same thing:
-  Only trivial expressions evaluate to values, but they cannot
-  appear in tail position, so the last thing a function does can
-  never be to return a value. The good thing about this more
-  syntactic reformulation is that we can encode it into the
-  syntax of the target language, that is, into the case classes
-  that we use to represent target language programs.
-
-  Trivial and nontrivial expression in the target language
-  --------------------------------------------------------
-
-  We start by saying that an expression in continuation-passing
-  style is either trivial or nontrivial:
-  */
-
-  sealed abstract class ContExp
-  sealed abstract class TrivialContExp extends ContExp
-  sealed abstract class NontrivialContExp extends ContExp
-
-  /**
-  No we go through the five case classes of FAE and decide
-  whether they are trivial or nontrivial, and what there
-  subexpressions are.
-
-  We start with numeric literals. They are the paradigmatic
-  example of trivial expressions, so we let `ContNum` extend
-  `TrivialContExp`:
-  */
-
-  case class ContNum(n: Int) extends TrivialContExp
-
-  /**
-  Next we look at identifier occurrences. Since we are in a
-  call-by-value setting, evaluating an identifier is
-  instantaneous and always terminates. We therefore classify
-  identifier occurrences as trivial. In a call-by-name or
-  call-by-need setting, we would have to treat them as nontrivial
-  instead!
-  */
-
-  case class ContId(name: Symbol) extends TrivialContExp
-
-  /**
-  Now we consider addition. Evaluating an addition expression
-  only takes a single step, so we treat them as trivial and let
-  `ContAdd` extend `TrivialContExp`.
-
-  Evaluation of `ContAdd` will work by evaluating the
-  subexpressions first, and then doing the addition. So neither
-  of the subexpressions is in tail positions, so they have to be
-  trivial, by the third property of programs in CPS. We therefore
-  use `TrivialContExp` for both `lhs` and `rhs`.
-  */
-
-  case class ContAdd(lhs: TrivialContExp, rhs: TrivialContExp)
-      extends TrivialContExp
-
-  // can also decide to ContAdd(...) extends NontrivialContExp
-  // TODO explain how to deal with nontrivial adds and 2nd req.
-
-  /**
-  The usual implicit conversions, for convenience:
-  */
-
-  implicit def num2contexp(n: Int) = ContNum(n)
-  implicit def id2contexp(s: Symbol) = ContId(s)
-
-  /**
-  Next we have to think about application. Evaluating an
-  application means evaluating the subexpressions first and then
-  calling the function. So the subexpressions are not in tail
-  position and therefore have to be trivial by the third property
-  of programs in CPS. We therefore use `TrivalContExp` for
-  `funExpr` and `argExpr`.
-
-  By the second property of programs in CPS, all functions take
-  continuations as additional argument. So we also have to
-  provide a continuation in every function call. To ensure we
-  don't forget these continuation arguments, we add a field of
-  type `Continuation` to the `ContApp` case class. The type
-  `Continuation` will be defined below.
-
-  Finally, evaluating an application might take multiple steps or
-  a long term or might not even terminate, depending on what
-  happens inside the called function. We therefore classify
-  applications as nontrivial, and let `ContApp` extend
-  `NontrivialContExp`.
-  */
-
-  case class ContApp(funExpr: TrivialContExp,
-                     argExpr: TrivialContExp,
-                     cont: Continuation)
-      extends NontrivialContExp
-
-
-  /**
-  Finally, we think about functions. The body of a function is in
-  tail position, so it has to be nontrivial by the third property
-  of programs in CPS. Accordingly, we choose `body:
-  NontrivialContExp`.
-
-  By the second property of programs in CPS, all functions take
-  continuations as additional argument. We add a field of type
-  `Symbol` to hold the name of the continuation parameter.
-
-  Function expressions itself are instantaneously evaluated to
-  closures, so they are trivial, and we let `ContFun` extend
-  `TrivialContExp`.
-  */
-
-  case class ContFun(param: Symbol,
-                     contParam: Symbol,
-                     body: NontrivialContExp)
-      extends TrivialContExp
-
-
-  /**
-  In the examples above, subexpressions were usually required to
-  be trivial. But sometimes, subexpressions can be required to be
-  nontrivial, for example:
-
-      case class If(condExpr: TrivialContExp,
-                    thenBranch: NontrivialContExp,
-                    elseBranch: NontrivialContExp)
-        extends NontrivialContExp
-
-  By the first and third property of programs in CPS, whether a
-  subexpression needs to trivial or nontrivial depends on whether
-  it is in tail position or not.
-
-  Continuations in the target language
-  ------------------------------------
-
-  Now in addition to trivial and nontrivial expressions, we also
-  need continuations in our target language. We already used the
-  type `Continuation` once above, in the type of a field of
-  `ContApp`.
-  */
-
-  sealed abstract class Continuation extends ContExp
-
-  /**
-  There are two kinds of continuations in the target language:
-  Names of continuation arguments, and anonymous continuations
-  constructed by function expressions. The body of an anonymous
-  continuation has to be a nontrivial expression, since it is in
-  tail position.
-  */
-
-  case class FunContinuation(
-    param: Symbol,
-    body: NontrivialContExp)
-      extends Continuation
-
-  case class IdContinuation(
-    name: Symbol)
-      extends Continuation
-
-  implicit def id2cont(name: Symbol) = IdContinuation(name)
-
-  /**
-  Finally, we also need to be able to *call* a
-  continuation. Since we don't know what the continuation will
-  do, calling a continuation is a nontrivial expression. And
-  since we first evaluate the continuation's argument and then
-  call the continuation, the argument is not in tail position and
-  therefore needs to be a trivial expression.
-  */
-
-  case class AppContinuation(
-    cont: Continuation,
-    arg: TrivialContExp)
-      extends NontrivialContExp
-
-  /**
-  Fresh names
-  -----------
-
-  To avoid name clashes, we need to generate fresh names all the
-  time.
-  */
-
-  var counter: Int = 0
-  def freshName(name: String) = {
-    counter += 1
-    Symbol(name + "_" + counter)
-  }
-
-  /**
-  The Transformation
-  ------------------
-
-  Ok, now we can write a transformation of arbitrary
-  expressions into non-trivial expressions in CPS.
-  */
-
-  def cps(e: Exp, k: Continuation): NontrivialContExp =
-    e match {
-      case Num(n) => AppContinuation(k, ContNum(n))
-      case Id(name) => AppContinuation(k, ContId(name))
-      case Add(lhs, rhs) => {
-        val x = freshName("x")
-        val y = freshName("y")
-
-        cps(lhs, FunContinuation(x,
-          cps(rhs, FunContinuation(y,
-            AppContinuation(k, ContAdd(x, y))))))
-      }
-
-      case Fun(param, body) =>
-        AppContinuation(k,
-          ContFun(param, 'dynk, cps(body, 'dynk)))
-
-        // in the function body, we have two continuations:
-        //
-        // k: continuation from where the lambda is
-        //    (static continuation)
-        //
-        // dynk: continuation from where the application is
-        //       (dynamic continuation)
-
-      case App (funExpr, argExpr) =>
-        cps(funExpr, FunContinuation('f,
-          cps(argExpr, FunContinuation('a,
-            ContApp('f, 'a, k)))))
-    }
-
-  /**
-  Note how the Scala type checker helps us get this right by
-  ensuring that we don't forget any continuation arguments or mix
-  up trivial and nontrivial expressions.
-  */
+/* With these definitions, we are now ready to formalize the transformation described above.
+ * There is one technical issues: We need to introduce new names for binders into our program, such as 'k.
+ * We need to make sure that we do not accidentially capture existing names in the program. For this
+ * reason we need our freshName machinery we introduced in 5-fae.scala.
+ */
+def freeVars(e: Exp) : Set[Symbol] =  e match {
+   case Id(x) => Set(x)
+   case Add(l,r) => freeVars(l) ++ freeVars(r)
+   case Fun(x,body) => freeVars(body) - x
+   case App(f,a) => freeVars(f) ++ freeVars(a)
+   case Num(n) => Set.empty
+}
+def freshName(names: Set[Symbol], default: Symbol) : Symbol = {
+  var last : Int = 0
+  var freshName = default  
+  while (names contains freshName) { freshName = Symbol(default.name+last.toString); last += 1; }
+  freshName
 }
 
-import transform._
+def cps(e: Exp) : CPSCont = e match {
+   case Add(e1,e2) => {
+     val k = freshName(freeVars(e), 'k)
+     val lv = freshName(freeVars(e2), 'lv)
+     CPSCont(k, CPSContApp(cps(e1),CPSCont(lv, CPSContApp(cps(e2), CPSCont('rv, CPSContApp(k,CPSAdd('rv, lv)))))))
+   }  
+   case Fun(a, body) => {
+     val k = freshName(freeVars(e), 'k)
+     val dynk = freshName(freeVars(e), 'dynk)
+     CPSCont(k, CPSContApp(k, CPSFun(a, dynk, CPSContApp(cps(body), dynk))))
+   }
+   case App(f,a) => {
+     val k = freshName(freeVars(e), 'k)
+     val fval = freshName(freeVars(a), 'fval)
+     CPSCont(k, CPSContApp(cps(f), CPSCont(fval, CPSContApp(cps(a), CPSCont('aval, CPSFunApp(fval, 'aval, k))))))
+   }
+   case Id(x) => {
+     val k = freshName(freeVars(e), 'k)
+     CPSCont(k, CPSContApp(k, CPSVar(x)))
+   }
+   case Num(n) => {
+     val k = freshName(freeVars(e), 'k)
+     CPSCont(k, CPSContApp('k,CPSNum(n)))
+   }
+}
 
-// Experiments show that this transformation works, but also that
-// it creates unnecessary expressions of the form:
-//
-//   AppContinuation(FunContinuation(name, body), value)
-//
-// 1. These expressions are called "administrative redexes".
-//
-// 2. We could write the administrative redexes as
-//
-//      wthContinuation(name, value, body)
-//
-//    with wthContinuation defined like wth from an earlier lecture.
-//
-// 3. The AppContinuation part of the administrative redexes are
-//    created in the cases for expressions that are already
-//    trivial (Num, Id, and Fun).
-//
-// 4. The FunContinuation part of the administrative redexes are
-//    created in the recursive calls of cps.
-//
-// => The administrative redexes are created because cps always
-//    creates a nontrivial expression in CPS, but sometimes a
-//    trivial expression in CPS would be shorter and more
-//    appropriate.
+/* This transformation is the so-called Fischer CPS transformation. There are many other CPS transformation algorithms.
+   The Fischer CPS transformation is nice because it is so simple and because it is defined as one simple structural 
+   recursion over the AST. Its main disadvantage is the existence of so-called "administrative redexes". 
+   An administrative redex is a function application whose operator is a "continuation lambda" - a lambda produced during
+   CPS transformation that was not in the original program. Such function applications can be computed immediately because 
+   the function which is called is known.
+   
+   For instance, cps(Add(2,3)) yields 
+   
+   CPSCont('k,
+           CPSContApp(
+             CPSCont('k,
+                     CPSContApp('k,2)),
+             CPSCont('lv,
+                     CPSContApp(
+                       CPSCont('k,
+                               CPSContApp('k,3)),
+                       CPSCont('rv,
+                               CPSAdd('rv,'lv))))))
+                               
+    instead of 
+    
+    CPSCont('k, CPSContApp('k, CPSAdd(2,3)))
+    
+    Many more advanced CPS transformation algorithms try to avoid as many administrative redexes as possible.
+*/
